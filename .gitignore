@@ -60,3 +60,6 @@ tmp/*
 
 # vim artifacts
 **.swp
+
+# Wiki data files
+/app/data.git
