@@ -2,6 +2,9 @@ require 'cgi'
 require 'sinatra'
 require 'gollum'
 require 'mustache/sinatra'
+require 'sinatra_warden'
+
+require 'pp'
 
 require 'gollum/frontend/views/layout'
 require 'gollum/frontend/views/editable'
@@ -9,13 +12,18 @@ require 'gollum/frontend/views/editable'
 module Wiki
   class App < Sinatra::Base
     register Mustache::Sinatra
+    register Sinatra::Warden
 
     # dir = File.dirname(File.expand_path(__FILE__))
     # /Users/georg/privat/projekte/rubyonrails-ch/RubyOnRailsCh/app/controllers
     dir = Rails.root.join('app')
 
+    
+    set :sessions, :key => RubyOnRailsCh::Application.config.session_options[:key], 
+                   :session_secret => RubyOnRailsCh::Application.config.secret_token
+    
+    
     # We want to serve public assets for now
-
     set :public,    "#{dir}/public"
     set :static,    true
 
@@ -40,6 +48,23 @@ module Wiki
       enable :logging, :raise_errors, :dump_errors
     end
     
+    before do
+      # authorize!
+      
+      puts "user authenticated: " + authenticated?.to_s
+      
+      if authenticated?
+        @user = current_user
+        
+        puts "------------ wiki warden user"
+        puts "user id: #{@user.id} - name: #{@user.name}"
+      end
+      
+      
+      pp @user
+      
+    end
+    
     helpers do
       def wiki_path(page)
         "/wiki/#{page}"
@@ -48,6 +73,19 @@ module Wiki
 
     get '/' do
       show_page_or_file('Home')
+    end
+    
+    get '/protected' do
+      # request.env['warden'].user.inspect
+      
+      authorize!
+      
+      @user = current_user
+      @session = session
+      @cookies = request.cookies
+      
+      
+      mustache :protected
     end
 
     get '/edit/*' do
@@ -214,7 +252,11 @@ module Wiki
     end
 
     def commit_message
-      { :message => params[:message] }
+      # get user and email address
+      
+      # throw exception in case of unauthorized!
+      
+      { :message => params[:message], :name => 'Georg', :email => 'geku@rwf.ch' }
     end
   end
 end

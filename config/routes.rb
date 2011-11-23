@@ -2,7 +2,10 @@ RubyOnRailsCh::Application.routes.draw do
   #get \"users\/show\"
 
   root :to => "home#index"
-
+  
+  get '/protected' => 'home#protected'
+  
+  
   devise_for :users
   resources :users, :only => :show
   

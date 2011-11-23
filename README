@@ -1,7 +1,12 @@
-Rubyonrailsch
-========================
+
+Development
+======================
 
 
-________________________
+Start the application with
+  guard
+  
+as this reloads the rails application every time you change a Sinatra app file (wiki)
 
-License
+
+

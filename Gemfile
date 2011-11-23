@@ -17,6 +17,14 @@ group :test do
   gem 'turn', :require => false
 end
 
+group :deployment do
+  gem 'guard'
+  gem 'guard-rails'
+  gem 'rb-inotify', :require => false
+  gem 'rb-fsevent', :require => false
+  gem 'rb-fchange', :require => false
+end
+
 
 # Project specific GEMs
 gem "haml", ">= 3.1.1"
@@ -25,5 +33,6 @@ gem "devise", ">= 1.3.4"
 gem "sinatra"
 gem "gollum"
 gem "rdiscount"
+gem "sinatra_warden"
 
 
