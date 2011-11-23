@@ -4,13 +4,8 @@ class HomeController < ApplicationController
   
   def index
     @users = User.all
-    
-    puts "---------------------- Rails warden user"
-    pp request.env['warden'].user
-    
   end
   
   def protected
-    
   end
 end

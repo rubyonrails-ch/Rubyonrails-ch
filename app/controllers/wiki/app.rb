@@ -2,9 +2,7 @@ require 'cgi'
 require 'sinatra'
 require 'gollum'
 require 'mustache/sinatra'
-require 'sinatra_warden'
-
-require 'pp'
+require 'warden'
 
 require 'gollum/frontend/views/layout'
 require 'gollum/frontend/views/editable'
@@ -12,15 +10,21 @@ require 'gollum/frontend/views/editable'
 module Wiki
   class App < Sinatra::Base
     register Mustache::Sinatra
-    register Sinatra::Warden
+    # register Sinatra::Warden
 
     # dir = File.dirname(File.expand_path(__FILE__))
     # /Users/georg/privat/projekte/rubyonrails-ch/RubyOnRailsCh/app/controllers
     dir = Rails.root.join('app')
 
     
+    set :sessions, true
     set :sessions, :key => RubyOnRailsCh::Application.config.session_options[:key], 
                    :session_secret => RubyOnRailsCh::Application.config.secret_token
+    
+    # Warden / auth settings
+    set :auth_use_referrer, false
+    set :auth_failure_path, '/'
+    
     
     
     # We want to serve public assets for now
@@ -49,26 +53,33 @@ module Wiki
     end
     
     before do
-      # authorize!
-      
-      puts "user authenticated: " + authenticated?.to_s
-      
-      if authenticated?
-        @user = current_user
-        
-        puts "------------ wiki warden user"
-        puts "user id: #{@user.id} - name: #{@user.name}"
-      end
-      
-      
-      pp @user
-      
     end
     
     helpers do
       def wiki_path(page)
         "/wiki/#{page}"
       end
+      
+      def warden
+        request.env['warden']
+      end
+      
+      def current_user
+        warden.user
+      end
+      
+      def authorize!(failure_path=nil)
+        unless authenticated?
+          session[:return_to] = request.path if options.auth_use_referrer
+          redirect(failure_path ? failure_path : options.auth_failure_path)
+        end
+      end
+      
+      # Check the current session is authenticated to a given scope
+      def authenticated?
+        warden.authenticated?
+      end      
+      
     end
 
     get '/' do
