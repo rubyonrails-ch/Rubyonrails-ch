@@ -21,7 +21,9 @@ To use this application, you will need:
 
 h2. Installing the Application
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+bc. bundle
+rake db:migrate
+rake git:init
 
 h2. Getting Started
 
