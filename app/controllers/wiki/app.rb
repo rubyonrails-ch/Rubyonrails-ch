@@ -16,10 +16,9 @@ module Wiki
     # /Users/georg/privat/projekte/rubyonrails-ch/RubyOnRailsCh/app/controllers
     dir = Rails.root.join('app')
 
-    
-    set :sessions, true
-    set :sessions, :key => RubyOnRailsCh::Application.config.session_options[:key], 
-                   :session_secret => RubyOnRailsCh::Application.config.secret_token
+
+    use Rack::Session::Cookie, :key => RubyOnRailsCh::Application.config.session_options[:key], 
+                               :session_secret => RubyOnRailsCh::Application.config.secret_token
     
     # Warden / auth settings
     set :auth_use_referrer, false
