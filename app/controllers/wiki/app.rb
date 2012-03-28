@@ -10,7 +10,7 @@ require 'gollum/frontend/views/editable'
 module Wiki
   class App < Sinatra::Base
     register Mustache::Sinatra
-    # register Sinatra::Warden
+    helpers Wiki::AuthHelpers
 
     # dir = File.dirname(File.expand_path(__FILE__))
     # /Users/georg/privat/projekte/rubyonrails-ch/RubyOnRailsCh/app/controllers
@@ -23,8 +23,7 @@ module Wiki
     
     # Warden / auth settings
     set :auth_use_referrer, false
-    set :auth_failure_path, '/'
-    
+    set :auth_failure_path, '/users/sign_in'
     
     
     # We want to serve public assets for now
@@ -59,27 +58,6 @@ module Wiki
       def wiki_path(page)
         "/wiki/#{page}"
       end
-      
-      def warden
-        request.env['warden']
-      end
-      
-      def current_user
-        warden.user
-      end
-      
-      def authorize!(failure_path=nil)
-        unless authenticated?
-          session[:return_to] = request.path if options.auth_use_referrer
-          redirect(failure_path ? failure_path : options.auth_failure_path)
-        end
-      end
-      
-      # Check the current session is authenticated to a given scope
-      def authenticated?
-        warden.authenticated?
-      end      
-      
     end
 
     get '/' do
@@ -87,14 +65,11 @@ module Wiki
     end
     
     get '/protected' do
-      # request.env['warden'].user.inspect
-      
       authorize!
       
       @user = current_user
       @session = session
       @cookies = request.cookies
-      
       
       mustache :protected
     end
