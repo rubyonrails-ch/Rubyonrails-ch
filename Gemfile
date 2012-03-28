@@ -31,8 +31,8 @@ gem "haml", ">= 3.1.1"
 gem "haml-rails", ">= 0.3.4", :group => :development
 gem "devise", ">= 1.3.4"
 gem "sinatra"
+gem "sinatra-contrib"
 gem "gollum"
 gem "rdiscount"
-gem "sinatra_warden"
 
 

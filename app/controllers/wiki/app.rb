@@ -1,5 +1,6 @@
 require 'cgi'
 require 'sinatra'
+require 'sinatra/reloader'
 require 'gollum'
 require 'mustache/sinatra'
 require 'warden'
@@ -42,6 +43,12 @@ module Wiki
     }
 
     # Sinatra error handling
+    configure :development do
+        register Sinatra::Reloader
+        also_reload '**/*.rb'
+        dont_reload '**/*spec.rb'
+    end
+
     configure :development, :staging do
       enable :show_exceptions, :dump_errors
       disable :raise_errors, :clean_trace
