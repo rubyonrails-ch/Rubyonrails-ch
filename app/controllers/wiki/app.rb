@@ -16,7 +16,8 @@ module Wiki
     # /Users/georg/privat/projekte/rubyonrails-ch/RubyOnRailsCh/app/controllers
     dir = Rails.root.join('app')
 
-
+    # make sinatra play nice
+    use Rack::MethodOverride
     use Rack::Session::Cookie, :key => RubyOnRailsCh::Application.config.session_options[:key], 
                                :session_secret => RubyOnRailsCh::Application.config.secret_token
     
@@ -26,7 +27,7 @@ module Wiki
     
     
     # We want to serve public assets for now
-    set :public,    "#{dir}/public"
+    set :public_folder,    "#{dir}/public"
     set :static,    true
 
     set :mustache, {
@@ -69,7 +70,7 @@ module Wiki
       @user = current_user
       @session = session
       @cookies = request.cookies
-      
+
       mustache :protected
     end
 
@@ -237,11 +238,8 @@ module Wiki
     end
 
     def commit_message
-      # get user and email address
-      
-      # throw exception in case of unauthorized!
-      
-      { :message => params[:message], :name => 'Georg', :email => 'geku@rwf.ch' }
+      authorize!
+      { :message => params[:message], :name => current_user.name, :email => current_user.email }
     end
   end
 end
